@@ -8,16 +8,30 @@
 // You can remove this once all of the functions are fully implemented
 static Fixedpoint DUMMY;
 
+// MS 1
 Fixedpoint fixedpoint_create(uint64_t whole) {
-  // TODO: implement
-  assert(0);
-  return DUMMY;
+  // TODO: implement - done
+  
+  // make fixedpoint struct and store
+  struct fixedpoint fp;
+
+  fp.whole = whole;
+
+  // check for tags
+  whole << 8 == 1 ? fp.valid-neg = 1 : fp.valid-nonneg = 1;
 }
 
+// MS 1
 Fixedpoint fixedpoint_create2(uint64_t whole, uint64_t frac) {
-  // TODO: implement
-  assert(0);
-  return DUMMY;
+  // TODO: implement - done
+  
+  struct fixedpoint fp;
+
+  fp.whole = whole;
+
+  fp.frac = frac;
+
+  whole << 8 == 1 ? fp.valid-neg = 1 : fp.valid-nonneg = 1;
 }
 
 Fixedpoint fixedpoint_create_from_hex(const char *hex) {
@@ -26,16 +40,16 @@ Fixedpoint fixedpoint_create_from_hex(const char *hex) {
   return DUMMY;
 }
 
+// MS 1
 uint64_t fixedpoint_whole_part(Fixedpoint val) {
-  // TODO: implement
-  assert(0);
-  return 0UL;
+  // TODO: implement - done
+  return val.whole;
 }
 
+// MS 1
 uint64_t fixedpoint_frac_part(Fixedpoint val) {
   // TODO: implement
-  assert(0);
-  return 0UL;
+  return val.frac;
 }
 
 Fixedpoint fixedpoint_add(Fixedpoint left, Fixedpoint right) {
@@ -74,10 +88,10 @@ int fixedpoint_compare(Fixedpoint left, Fixedpoint right) {
   return 0;
 }
 
+// MS 1
 int fixedpoint_is_zero(Fixedpoint val) {
-  // TODO: implement
-  assert(0);
-  return 0;
+  // TODO: implement - done
+  return val.whole == 0 && val.frac == 0;
 }
 
 int fixedpoint_is_err(Fixedpoint val) {
