@@ -13,25 +13,31 @@ Fixedpoint fixedpoint_create(uint64_t whole) {
   // TODO: implement - done
   
   // make fixedpoint struct and store
-  struct fixedpoint fp;
+  Fixedpoint fp;
 
   fp.whole = whole;
 
   // check for tags
-  whole << 8 == 1 ? fp.valid-neg = 1 : fp.valid-nonneg = 1;
+  ((whole << 8) == 1) ? (fp.validNeg=1) : (fp.validNonneg=1);
+  fp.hasFrac = 0;
+  
+  return fp;
 }
 
 // MS 1
 Fixedpoint fixedpoint_create2(uint64_t whole, uint64_t frac) {
   // TODO: implement - done
   
-  struct fixedpoint fp;
+  Fixedpoint fp;
 
   fp.whole = whole;
 
   fp.frac = frac;
+  fp.hasFrac = 1;
 
-  whole << 8 == 1 ? fp.valid-neg = 1 : fp.valid-nonneg = 1;
+  ((whole << 8) == 1) ? (fp.validNeg=1) : (fp.validNonneg=1);
+
+  return fp;
 }
 
 Fixedpoint fixedpoint_create_from_hex(const char *hex) {
@@ -49,7 +55,11 @@ uint64_t fixedpoint_whole_part(Fixedpoint val) {
 // MS 1
 uint64_t fixedpoint_frac_part(Fixedpoint val) {
   // TODO: implement
-  return val.frac;
+  if (val.hasFrac == 1) {
+    return val.frac;
+  } else {
+    return 0;
+  }
 }
 
 Fixedpoint fixedpoint_add(Fixedpoint left, Fixedpoint right) {
@@ -91,7 +101,11 @@ int fixedpoint_compare(Fixedpoint left, Fixedpoint right) {
 // MS 1
 int fixedpoint_is_zero(Fixedpoint val) {
   // TODO: implement - done
-  return val.whole == 0 && val.frac == 0;
+  if(val.hasFrac == 0) {
+    return val.whole == 0;
+  } else {
+    return val.whole == 0 && val.frac == 0;
+  }
 }
 
 int fixedpoint_is_err(Fixedpoint val) {

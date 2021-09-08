@@ -8,8 +8,9 @@ typedef struct {
   uint64_t whole;
   uint64_t frac;
 
-  uint64_t valid-nonneg;
-  uint64_t valid-neg;
+  uint64_t hasFrac;
+  uint64_t validNonneg;
+  uint64_t validNeg;
   uint64_t error;
   uint64_t posoverfl;
   uint64_t negoverfl;
