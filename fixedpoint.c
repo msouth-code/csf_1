@@ -5,8 +5,6 @@
 #include <assert.h>
 #include "fixedpoint.h"
 
-//test
-
 // You can remove this once all of the functions are fully implemented
 static Fixedpoint DUMMY;
 
@@ -42,6 +40,7 @@ Fixedpoint fixedpoint_create2(uint64_t whole, uint64_t frac) {
   return fp;
 }
 
+//me
 Fixedpoint fixedpoint_create_from_hex(const char *hex) {
   // TODO: implement
   // can use strtoul and sprintf
@@ -67,14 +66,25 @@ uint64_t fixedpoint_frac_part(Fixedpoint val) {
   }
 }
 
+//me
 Fixedpoint fixedpoint_add(Fixedpoint left, Fixedpoint right) {
   // TODO: implement
   // check for overflow
   // for overflow of fractional parts, carry/borrow to the whole part
-  assert(0);
-  return DUMMY;
+
+  if(left.hasFrac || right.hasFrac) {
+    uint64_t wholeSum;
+    uint64_t fracSum;
+    Fixedpoint fp = fixedpoint_create2(wholeSum, fracSum);
+    return fp;
+  } else {
+    uint64_t wholeSum;
+    Fixedpoint fp = fixedpoint_create(wholeSum);
+    return fp;
+  }
 }
 
+//me
 Fixedpoint fixedpoint_sub(Fixedpoint left, Fixedpoint right) {
   // TODO: implement
   // for overflow of fractional parts, carry/borrow to the whole part
@@ -82,6 +92,7 @@ Fixedpoint fixedpoint_sub(Fixedpoint left, Fixedpoint right) {
   return DUMMY;
 }
 
+//me
 Fixedpoint fixedpoint_negate(Fixedpoint val) {
   // TODO: implement
   assert(0);
@@ -117,24 +128,28 @@ int fixedpoint_is_zero(Fixedpoint val) {
   }
 }
 
+//me
 int fixedpoint_is_err(Fixedpoint val) {
   // TODO: implement
   assert(0);
   return 0;
 }
 
+//me
 int fixedpoint_is_neg(Fixedpoint val) {
   // TODO: implement
   assert(0);
   return 0;
 }
 
+//me
 int fixedpoint_is_overflow_neg(Fixedpoint val) {
   // TODO: implement
   assert(0);
   return 0;
 }
 
+//me
 int fixedpoint_is_overflow_pos(Fixedpoint val) {
   // TODO: implement
   assert(0);
