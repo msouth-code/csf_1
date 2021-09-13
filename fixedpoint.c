@@ -42,6 +42,9 @@ Fixedpoint fixedpoint_create2(uint64_t whole, uint64_t frac) {
 
 Fixedpoint fixedpoint_create_from_hex(const char *hex) {
   // TODO: implement
+  // can use strtoul and sprintf
+  // check for error - invalid hex digits in input (anything not 0-9, a-f, A-F)
+  // should only return valid nonneg, valid neg, or error
   assert(0);
   return DUMMY;
 }
@@ -64,12 +67,15 @@ uint64_t fixedpoint_frac_part(Fixedpoint val) {
 
 Fixedpoint fixedpoint_add(Fixedpoint left, Fixedpoint right) {
   // TODO: implement
+  // check for overflow
+  // for overflow of fractional parts, carry/borrow to the whole part
   assert(0);
   return DUMMY;
 }
 
 Fixedpoint fixedpoint_sub(Fixedpoint left, Fixedpoint right) {
   // TODO: implement
+  // for overflow of fractional parts, carry/borrow to the whole part
   assert(0);
   return DUMMY;
 }
@@ -82,6 +88,7 @@ Fixedpoint fixedpoint_negate(Fixedpoint val) {
 
 Fixedpoint fixedpoint_halve(Fixedpoint val) {
   // TODO: implement
+  // check for underflow - least significant bit of orig value lost
   assert(0);
   return DUMMY;
 }
@@ -152,6 +159,7 @@ int fixedpoint_is_valid(Fixedpoint val) {
 
 char *fixedpoint_format_as_hex(Fixedpoint val) {
   // TODO: implement
+  // translate fraction directly but must drop trailing zeros when converting to hex
   assert(0);
   char *s = malloc(20);
   strcpy(s, "<invalid>");
