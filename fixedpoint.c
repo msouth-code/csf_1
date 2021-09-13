@@ -5,6 +5,8 @@
 #include <assert.h>
 #include "fixedpoint.h"
 
+//test
+
 // You can remove this once all of the functions are fully implemented
 static Fixedpoint DUMMY;
 
