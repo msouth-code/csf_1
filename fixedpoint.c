@@ -147,8 +147,65 @@ Fixedpoint fixedpoint_add(Fixedpoint left, Fixedpoint right) {
 Fixedpoint fixedpoint_sub(Fixedpoint left, Fixedpoint right) {
   // TODO: implement
   // for overflow of fractional parts, carry/borrow to the whole part
-  assert(0);
-  return DUMMY;
+  uint64_t pos_over;
+  uint64_t neg_over;
+
+  uint64_t neg;
+  uint64_t frac;
+
+  uint64_t diff_whole;
+  uint64_t diff_frac;
+  if((left.validNeg == 1 && right.validNonneg == 1) || (right.validNeg == 1 && left.validNonneg == 1)) {
+	  // left neg right pos --- -l - r => r + l
+	  // right neg left pos --- l - -r => l + r
+	  diff_whole = left.whole + right.whole;
+	  if(left.hasFrac || right.hasFrac) {
+		  diff_frac = left.frac + right.frac;
+		  frac = 1;
+		  if(diff_frac < left.frac) {
+			  diff_whole++;
+			  pos_over = 1;
+		  }
+	  }
+	  if(diff_whole < left.whole) {
+		  pos_over = 1;
+	  }
+  } else if (left.validNonneg == 1 && right.validNonneg == 1) { // both positive
+	  diff_whole = left.whole - right.whole;
+	  if(left.hasFrac || right.hasFrac) {
+		  diff_frac = left.frac - right.frac;
+		  frac = 1;
+		  if(diff_frac > left.frac) {
+			  diff_whole--;
+			  neg_over = 1;
+		  }
+	  }
+	  if(diff_whole > left.whole) {
+		  neg_over = 1;
+	  }
+  } else { // both negative
+	  // - l - - r => -l + r => r - l
+	  diff_whole = right.whole - left.whole;
+	  if(left.hasFrac || right.hasFrac) {
+		  diff_frac = right.frac - left.frac;
+		  frac = 1;
+		  if(diff_frac > right.frac) {
+			  diff_whole --;
+			  neg_over = 1;
+		  }
+	  }
+	  if(diff_whole > left.whole) {
+		  neg_over = 1;
+	  }
+  }
+  Fixedpoint fp = fixedpoint_create2(diff_whole, diff_frac);
+  if(neg == 1) { fp.validNeg = 1; }
+  else { fp.validNonneg = 1; }
+  fp.posoverfl = pos_over;
+  fp.negoverfl = neg_over;
+  fp.hasFrac = frac;
+  return fp;
+
 }
 
 //me
