@@ -66,22 +66,81 @@ uint64_t fixedpoint_frac_part(Fixedpoint val) {
   }
 }
 
+Fixedpoint add_magnitude(Fixedpoint left, Fixedpoint right, Fixedpoint sum) {
+	return sum;
+}
+
+
+
 //me
 Fixedpoint fixedpoint_add(Fixedpoint left, Fixedpoint right) {
   // TODO: implement
   // check for overflow
   // for overflow of fractional parts, carry/borrow to the whole part
+  uint64_t pos_over;
+  uint64_t neg_over;
 
-  if(left.hasFrac || right.hasFrac) {
-    uint64_t wholeSum;
-    uint64_t fracSum;
-    Fixedpoint fp = fixedpoint_create2(wholeSum, fracSum);
-    return fp;
+  uint64_t neg;
+  uint64_t frac;
+
+  uint64_t sum_whole;
+  uint64_t sum_frac;
+  if(left.validNeg == 1 && right.validNonneg == 1) {
+	  // left neg right pos
+	  sum_whole = right.whole - left.whole;
+	  neg = 1;
+	  if(left.hasFrac || right.hasFrac) {
+		  sum_frac = right.frac - left.frac;
+		  frac = 1;
+		  // check for neg overflow of frac
+		  if(sum_frac > right.frac) {
+			  sum_whole--;
+			  neg_over = 1;
+		  }
+	  }
+	  // check for neg overflow of whole
+	  if(sum_whole > right.whole) {
+		  neg_over = 1;
+	  }
+  } else if(right.validNeg == 1 && left.validNonneg == 1) {
+	  // right neg left pos
+	  sum_whole = left.whole - right.whole;
+	  neg = 1;
+	  if(left.hasFrac || right.hasFrac) {
+		  sum_frac = left.frac - right.frac;
+		  frac = 1;
+		  // check for neg overflow of frac
+		  if(sum_frac > left.frac) {
+			  sum_whole--;
+			  neg_over = 1;
+		  }
+	  }
+	  // check for neg overflow of whole
+	  if(sum_whole > left.whole) {
+		  neg_over = 1;
+	  }
   } else {
-    uint64_t wholeSum;
-    Fixedpoint fp = fixedpoint_create(wholeSum);
-    return fp;
+	  sum_whole = left.whole + right.whole;
+	  neg = left.validNeg;
+	  if(left.hasFrac || right.hasFrac) {
+		  sum_frac = left.frac + right.frac;
+		  frac = 1;
+		  if(sum_frac < left.frac) {
+			  sum_whole++;
+			  pos_over = 1;
+		  }
+	  }
+	  if(sum_whole < left.whole) {
+		  pos_over = 1;
+	  }
   }
+  Fixedpoint fp = fixedpoint_create2(sum_whole, sum_frac);
+  if(neg == 1) { fp.validNeg = 1; }
+  else { fp.validNonneg = 1; }
+  fp.posoverfl = pos_over;
+  fp.negoverfl = neg_over;
+  fp.hasFrac = frac;
+  return fp;
 }
 
 //me
