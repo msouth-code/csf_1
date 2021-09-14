@@ -40,11 +40,38 @@ Fixedpoint fixedpoint_create2(uint64_t whole, uint64_t frac) {
   return fp;
 }
 
+int is_valid_hex(const char *hex) {
+  for(int i = 0; i < strlen(hex); i++) {
+	  // 48 - 57, 65 - 70, 97 - 102
+	  if(hex[i] < 48 || (hex[i] > 57 && hex[i] < 65) || (hex[i] > 70 && hex[i] < 97) || hex[i] > 102) {
+		  return 0;
+	  }  
+  }
+  return 1;
+}
+
 //me
 Fixedpoint fixedpoint_create_from_hex(const char *hex) {
   // TODO: implement
   // can use strtoul and sprintf
   // check for error - invalid hex digits in input (anything not 0-9, a-f, A-F)
+  uint64_t neg;
+  uint64_t dec;
+
+
+  char* wholehex;
+  char* frachex;
+
+  if(hex[0] == '-') { neg = 1; } // number is neg
+  char* dot = strchr(hex, '.');
+  if(dot != NULL) {
+	  // number has frac
+    dec = 1;
+	 uint64_t dotpos = dot - hex;
+	 if(neg == 1) {
+	 }
+	 
+  }
   // should only return valid nonneg, valid neg, or error
   assert(0);
   return DUMMY;
