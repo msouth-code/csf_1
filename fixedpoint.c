@@ -211,8 +211,9 @@ Fixedpoint fixedpoint_sub(Fixedpoint left, Fixedpoint right) {
 //me
 Fixedpoint fixedpoint_negate(Fixedpoint val) {
   // TODO: implement
-  assert(0);
-  return DUMMY;
+  val.validNeg = 1;
+  val.validNonneg = 0;
+  return val;
 }
 
 Fixedpoint fixedpoint_halve(Fixedpoint val) {
@@ -247,29 +248,25 @@ int fixedpoint_is_zero(Fixedpoint val) {
 //me
 int fixedpoint_is_err(Fixedpoint val) {
   // TODO: implement
-  assert(0);
-  return 0;
+  return val.error == 1;
 }
 
 //me
 int fixedpoint_is_neg(Fixedpoint val) {
   // TODO: implement
-  assert(0);
-  return 0;
+  return val.validNeg == 1;
 }
 
 //me
 int fixedpoint_is_overflow_neg(Fixedpoint val) {
   // TODO: implement
-  assert(0);
-  return 0;
+  return val.negoverfl;
 }
 
 //me
 int fixedpoint_is_overflow_pos(Fixedpoint val) {
   // TODO: implement
-  assert(0);
-  return 0;
+  return val.posoverfl;
 }
 
 int fixedpoint_is_underflow_neg(Fixedpoint val) {
