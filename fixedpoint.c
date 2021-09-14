@@ -40,13 +40,80 @@ Fixedpoint fixedpoint_create2(uint64_t whole, uint64_t frac) {
   return fp;
 }
 
+int is_valid_hex(const char *hex) {
+  int dot = 0;
+  int	wc = 0;
+  int fc = 0;
+  for(int i = 0; i < strlen(hex); i++) {
+	  if(hex[i] == '.') { dot = 1; }
+	  (dot == 1) ? fc++:wc++;
+	  // 48 - 57, 65 - 70, 97 - 102
+	  if(hex[i] < 48 || (hex[i] > 57 && hex[i] < 65) || (hex[i] > 70 && hex[i] < 97) || hex[i] > 102) {
+		  return 0;
+	  }  
+  }
+  if(wc > 16 || fc > 16) {
+	  return 0;
+  }
+  return 1;
+}
+
+void cpysubstr(const char *str, char* res, int start, int end) {
+	int count = 0;
+	for(int i = start; i < end; i++) {
+		res[count] = str[i];
+	}
+}
+
+//me
 Fixedpoint fixedpoint_create_from_hex(const char *hex) {
   // TODO: implement
   // can use strtoul and sprintf
   // check for error - invalid hex digits in input (anything not 0-9, a-f, A-F)
+  if(is_valid_hex(hex) == 0) {
+	  Fixedpoint fp = fixedpoint_create(0);
+	  fp.error = 1;
+	  return fp;
+  }
+  int neg;
+  int dec;
+
+  char* wholehex;
+  char* frachex;
+
+  // x
+  // -x
+  // x.y
+  // -x.y
+  char* dot = strchr(hex, '.');
+  int dotpos = dot - hex; // location of dot in string
+  if(hex[0] == '-') { 
+	  neg = 1;
+	  cpysubstr(hex, wholehex, 1, dotpos);
+  } else { cpysubstr(hex, wholehex, 0, dotpos); }
+  if(dot != NULL) { 
+	  dec = 1; 
+	  cpysubstr(hex, frachex, dotpos, strlen(hex) - 1);
+  }
+
+  // hex to bin
+  char* ptr;
+  Fixedpoint fp;
+  uint64_t whole = strtoul(wholehex, &ptr, 2);
+  if(dec == 1) { 
+	  uint64_t frac = strtoul(frachex, &ptr, 2); 
+	  fp = fixedpoint_create2(whole, frac);
+	  fp.hasFrac = 1;
+  } else { fp = fixedpoint_create(whole); }
+
+  if(neg == 1) {
+	  fp.validNeg = 1;
+  } else {
+	  fp.validNonneg = 1;
+  }
+
   // should only return valid nonneg, valid neg, or error
-  assert(0);
-  return DUMMY;
+  return fp;
 }
 
 // MS 1
@@ -65,25 +132,149 @@ uint64_t fixedpoint_frac_part(Fixedpoint val) {
   }
 }
 
+
+//me
 Fixedpoint fixedpoint_add(Fixedpoint left, Fixedpoint right) {
   // TODO: implement
   // check for overflow
   // for overflow of fractional parts, carry/borrow to the whole part
-  assert(0);
-  return DUMMY;
+  int pos_over;
+  int neg_over;
+
+  int neg;
+  int frac;
+
+  uint64_t sum_whole;
+  uint64_t sum_frac;
+  if(left.validNeg == 1 && right.validNonneg == 1) {
+	  // left neg right pos
+	  sum_whole = right.whole - left.whole;
+	  neg = 1;
+	  if(left.hasFrac || right.hasFrac) {
+		  sum_frac = right.frac - left.frac;
+		  frac = 1;
+		  // check for neg overflow of frac
+		  if(sum_frac > right.frac) {
+			  sum_whole--;
+			  neg_over = 1;
+		  }
+	  }
+	  // check for neg overflow of whole
+	  if(sum_whole > right.whole) {
+		  neg_over = 1;
+	  }
+  } else if(right.validNeg == 1 && left.validNonneg == 1) {
+	  // right neg left pos
+	  sum_whole = left.whole - right.whole;
+	  neg = 1;
+	  if(left.hasFrac || right.hasFrac) {
+		  sum_frac = left.frac - right.frac;
+		  frac = 1;
+		  // check for neg overflow of frac
+		  if(sum_frac > left.frac) {
+			  sum_whole--;
+			  neg_over = 1;
+		  }
+	  }
+	  // check for neg overflow of whole
+	  if(sum_whole > left.whole) {
+		  neg_over = 1;
+	  }
+  } else {
+	  sum_whole = left.whole + right.whole;
+	  neg = left.validNeg;
+	  if(left.hasFrac || right.hasFrac) {
+		  sum_frac = left.frac + right.frac;
+		  frac = 1;
+		  if(sum_frac < left.frac) {
+			  sum_whole++;
+			  pos_over = 1;
+		  }
+	  }
+	  if(sum_whole < left.whole) {
+		  pos_over = 1;
+	  }
+  }
+  Fixedpoint fp = fixedpoint_create2(sum_whole, sum_frac);
+  if(neg == 1) { fp.validNeg = 1; }
+  else { fp.validNonneg = 1; }
+  fp.posoverfl = pos_over;
+  fp.negoverfl = neg_over;
+  fp.hasFrac = frac;
+  return fp;
 }
 
+//me
 Fixedpoint fixedpoint_sub(Fixedpoint left, Fixedpoint right) {
   // TODO: implement
   // for overflow of fractional parts, carry/borrow to the whole part
-  assert(0);
-  return DUMMY;
+  int pos_over;
+  int neg_over;
+
+  int neg;
+  int frac;
+
+  uint64_t diff_whole;
+  uint64_t diff_frac;
+  if((left.validNeg == 1 && right.validNonneg == 1) || (right.validNeg == 1 && left.validNonneg == 1)) {
+	  // left neg right pos --- -l - r => r + l
+	  // right neg left pos --- l - -r => l + r
+	  diff_whole = left.whole + right.whole;
+	  if(left.hasFrac || right.hasFrac) {
+		  diff_frac = left.frac + right.frac;
+		  frac = 1;
+		  if(diff_frac < left.frac) {
+			  diff_whole++;
+			  pos_over = 1;
+		  }
+	  }
+	  if(diff_whole < left.whole) {
+		  pos_over = 1;
+	  }
+  } else if (left.validNonneg == 1 && right.validNonneg == 1) { // both positive
+	  diff_whole = left.whole - right.whole;
+	  if(left.hasFrac || right.hasFrac) {
+		  diff_frac = left.frac - right.frac;
+		  frac = 1;
+		  if(diff_frac > left.frac) {
+			  diff_whole--;
+			  neg_over = 1;
+		  }
+	  }
+	  if(diff_whole > left.whole) {
+		  neg_over = 1;
+	  }
+  } else { // both negative
+	  // - l - - r => -l + r => r - l
+	  diff_whole = right.whole - left.whole;
+	  if(left.hasFrac || right.hasFrac) {
+		  diff_frac = right.frac - left.frac;
+		  frac = 1;
+		  if(diff_frac > right.frac) {
+			  diff_whole --;
+			  neg_over = 1;
+		  }
+	  }
+	  if(diff_whole > left.whole) {
+		  neg_over = 1;
+	  }
+  }
+  Fixedpoint fp = fixedpoint_create2(diff_whole, diff_frac);
+  if(neg == 1) { fp.validNeg = 1; }
+  else { fp.validNonneg = 1; }
+  fp.posoverfl = pos_over;
+  fp.negoverfl = neg_over;
+  fp.hasFrac = frac;
+  return fp;
+
 }
 
+//me
 Fixedpoint fixedpoint_negate(Fixedpoint val) {
   // TODO: implement
-  assert(0);
-  return DUMMY;
+  val.validNeg = 1;
+  val.validNonneg = 0;
+  return val;
 }
 
 Fixedpoint fixedpoint_halve(Fixedpoint val) {
@@ -115,28 +306,28 @@ int fixedpoint_is_zero(Fixedpoint val) {
   }
 }
 
+//me
 int fixedpoint_is_err(Fixedpoint val) {
   // TODO: implement
-  assert(0);
-  return 0;
+  return val.error == 1;
 }
 
+//me
 int fixedpoint_is_neg(Fixedpoint val) {
   // TODO: implement
-  assert(0);
-  return 0;
+  return val.validNeg == 1;
 }
 
+//me
 int fixedpoint_is_overflow_neg(Fixedpoint val) {
   // TODO: implement
-  assert(0);
-  return 0;
+  return val.negoverfl;
 }
 
+//me
 int fixedpoint_is_overflow_pos(Fixedpoint val) {
   // TODO: implement
-  assert(0);
-  return 0;
+  return val.posoverfl;
 }
 
 int fixedpoint_is_underflow_neg(Fixedpoint val) {

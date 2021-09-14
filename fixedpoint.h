@@ -8,14 +8,14 @@ typedef struct {
   uint64_t whole;
   uint64_t frac;
 
-  uint64_t hasFrac;
-  uint64_t validNonneg;
-  uint64_t validNeg;
-  uint64_t error;
-  uint64_t posoverfl;
-  uint64_t negoverfl;
-  uint64_t posunderfl;
-  uint64_t negunderfl;
+  int hasFrac;
+  int validNonneg;
+  int validNeg;
+  int error;
+  int posoverfl;
+  int negoverfl;
+  int posunderfl;
+  int negunderfl;
 } Fixedpoint;
 
 // Create a Fixedpoint value representing an integer.
@@ -38,6 +38,14 @@ Fixedpoint fixedpoint_create(uint64_t whole);
 // Returns:
 //   the Fixedpoint value
 Fixedpoint fixedpoint_create2(uint64_t whole, uint64_t frac);
+
+// Helper method for fixedpoint_create_from_hex 
+// checks if input hex is valid
+int is_valid_hex(const char *hex); 
+
+// Helper method for fixedpoint_create_from_hex
+// copies substring from str to res
+void cpysubstr(const char *str, char* res, int start, int end); 
 
 // Create a Fixedpoint value from a string representation.
 // The string will have one of the following forms:
