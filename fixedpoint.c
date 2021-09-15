@@ -280,19 +280,70 @@ Fixedpoint fixedpoint_negate(Fixedpoint val) {
 Fixedpoint fixedpoint_halve(Fixedpoint val) {
   // TODO: implement
   // check for underflow - least significant bit of orig value lost
-  assert(0);
-  return DUMMY;
+  Fixedpoint half;
+  int underflow;
+
+  uint64_t whole = val.whole >> 1;
+  //check for underflow
+  uint64_t wmsk = (1 << 2) - 1;
+  uint64_t lsbs = val.whole & wmsk;
+  if(lsbs == 01) {
+	  underflow = 1;
+  } 
+  uint64_t frac;
+  if(val.hasFrac == 1) {
+	  frac = val.frac >> 1;
+	  //check for underflow
+	  uint64_t fmsk = (1 << 2) - 1;
+	  uint64_t flsbs = val.frac & fmsk;
+	  if(flsbs == 01) {
+		  underflow = 1;
+	  }
+	  half.frac = frac;
+  }
+  half.whole = whole;
+  if(val.validNeg == 1) {
+	  half.validNeg = 1;
+	  if(underflow == 1) {
+		  half.negunderfl = 1;
+	  }
+  } else {
+	  half.validNonneg = 1;
+	  if(underflow == 1) {
+		  half.posunderfl = 1;
+	  }
+  }
+  return half;
 }
 
 Fixedpoint fixedpoint_double(Fixedpoint val) {
   // TODO: implement
-  assert(0);
-  return DUMMY;
+  Fixedpoint doubled;
+
+  doubled.whole = val.whole<<1;
+  if(val.hasFrac) {
+	  doubled.frac = val.frac << 1;
+  }
+  return doubled;
 }
 
 int fixedpoint_compare(Fixedpoint left, Fixedpoint right) {
   // TODO: implement
-  assert(0);
+  if(left.whole == right.whole) {
+    if(left.frac == right.frac) {
+      return 0;
+    } else if(left.frac < right.frac) { // left is less
+      return -1;
+    } else {
+    return 1;
+    }
+  }
+
+  if(left.whole < right.whole) { //left is less
+    return -1;
+  } else {
+    return 1;
+  }
   return 0;
 }
 
@@ -332,27 +383,67 @@ int fixedpoint_is_overflow_pos(Fixedpoint val) {
 
 int fixedpoint_is_underflow_neg(Fixedpoint val) {
   // TODO: implement
-  assert(0);
-  return 0;
+  return val.negunderfl;
 }
 
 int fixedpoint_is_underflow_pos(Fixedpoint val) {
   // TODO: implement
-  assert(0);
-  return 0;
+  return val.posunderfl;
 }
 
 int fixedpoint_is_valid(Fixedpoint val) {
   // TODO: implement
-  assert(0);
-  return 0;
+  if(val.error == 1 || val.posoverfl == 1 ||
+  val.negoverfl == 1 || val.posunderfl == 1 ||
+  val.negunderfl == 1) {
+    return 0;
+  }
+  return 1;
 }
+
 
 char *fixedpoint_format_as_hex(Fixedpoint val) {
   // TODO: implement
   // translate fraction directly but must drop trailing zeros when converting to hex
-  assert(0);
-  char *s = malloc(20);
-  strcpy(s, "<invalid>");
+  char *s = malloc(40);
+  if(val.validNeg == 1) {
+	  s[0] = '-';
+  }
+
+  int wholehex = 0;
+  int rem;
+  int i = 1;
+  int binwhole = val.whole;
+  while(binwhole != 0) {
+	  rem = binwhole % 10;
+	  wholehex = wholehex + rem * i;
+	  i *= 2;
+	  binwhole /= 10;
+  }
+
+  char *w = malloc(20);
+  sprintf(w, "%i", wholehex);
+  strcat(s, w);
+  free(w);
+
+  if(val.hasFrac) {
+	  int frachex = 0;
+	  int remf;
+	  int f = 1;
+	  int binfrac = val.frac;
+	  while(binfrac != 0) {
+		  remf = binfrac % 10;
+		  frachex = frachex + remf * f;
+		  f *= 2;
+		  binfrac /= 10;
+	  }
+	  char dot[1] = ".";
+	  strcat(s, dot);
+	  char *ef = malloc(20);
+	  sprintf(ef, "%i", frachex);
+	  strcat(s, ef);
+	  free(ef);
+  }
+
   return s;
 }
