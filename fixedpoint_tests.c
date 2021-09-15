@@ -88,12 +88,12 @@ TestObjs *setup(void) {
   objs->max = fixedpoint_create2(0xffffffffffffffff, 0xffffffffffffffff);
   
   //added
-  objs->testval1 = fixedpoint_create(
-  objs->testval2 = fixedpoint_create(
-  objs->testval3 = fixedpoint_create(
-  objs->testval4 = fixedpoint_create(
-  objs->testval5 = fixedpoint_create(
-  objs->testval6 = fixedpoint_create(
+  objs->testval1 = fixedpoint_create_from_hex("0.7a51de9ea0538c6");
+  objs->testval2 = fixedpoint_create("6a2f92fea5e303b0");
+  objs->testval3 = fixedpoint_create("12FB236.3036592D6DCC61420F44");
+  objs->testval4 = fixedpoint_create("373ba12790e9c7b1");
+  objs->testval5 = fixedpoint_create("a40ac17927b13a11");
+  objs->testval6 = fixedpoint_create("F512.89AE924F227D028A1DFC");
 
   return objs;
 }
@@ -105,14 +105,14 @@ void cleanup(TestObjs *objs) {
 //added
 void extra_tests(TestObjs *objs) {
   //test whole part
-  ASSERT(___ == fixedpoint_whole_part(objs->testval1));
-  ASSERT(___ == fixedpoint_whole_part(objs->testval2));
-  ASSERT(___ == fixedpoint_whole_part(objs->testval3));
+  ASSERT(0UL == fixedpoint_whole_part(objs->testval1));
+  ASSERT(6a2f92fea5e303b0UL == fixedpoint_whole_part(objs->testval2));
+  ASSERT(12FB236UL == fixedpoint_whole_part(objs->testval3));
   
   //test frac part
-  ASSERT(___ == fixedpoint_whole_part(objs->testval4));
-  ASSERT(___ == fixedpoint_whole_part(objs->testval5));
-  ASSERT(___ == fixedpoint_whole_part(objs->testval6));
+  ASSERT(0UL == fixedpoint_whole_part(objs->testval4));
+  ASSERT(0UL == fixedpoint_whole_part(objs->testval5));
+  ASSERT(89AE924F227D028A1DFCUL == fixedpoint_whole_part(objs->testval6));
   
   //test format as hex
   char *s;
@@ -137,44 +137,46 @@ void extra_tests(TestObjs *objs) {
   ASSERT(!fixedpoint_is_neg(objs->testval3));
 
   // negate the test fixture values
-  Fixedpoint zero_neg = fixedpoint_negate(objs->testval4);
-  Fixedpoint one_neg = fixedpoint_negate(objs->testval5);
-  Fixedpoint one_half_neg = fixedpoint_negate(objs->testval6);
+  Fixedpoint testval4_neg = fixedpoint_negate(objs->testval4);
+  Fixedpoint testval5_neg = fixedpoint_negate(objs->testval5);
+  Fixedpoint testval6_neg = fixedpoint_negate(objs->testval6);
   
+  ASSERT(fixedpoint_is_neg(testval4));
+  ASSERT(fixedpoint_is_neg(testval5));
+  ASSERT(fixedpoint_is_neg(testval6));
   
   //test add
   Fixedpoint lhss, rhss, summ;
 
-  lhss = testval1;
-  rhss = testval2;
+  lhss = fixedpoint_create_from_hex("6793476D9AFCCF.5DF600EB0B61");
+  rhss = fixedpoint_create_from_hex("-14A90FB121962C.78C76A15");
   summ = fixedpoint_add(lhss, rhss);
   ASSERT(fixedpoint_is_neg(summ));
-  ASSERT("_____" == fixedpoint_whole_part(summ));
-  ASSERT("_____" == fixedpoint_frac_part(summ));
+  ASSERT("0x52EA37BC7966A2UL" == fixedpoint_whole_part(summ));
+  ASSERT("0xE52E96DEA7000000UL" == fixedpoint_frac_part(summ));
   
   //test sub
   Fixedpoint lhss, rhss, diff;
 
-  lhss = fixedpoint_create_from_hex("_________");
-  rhss = fixedpoint_create_from_hex("_________");
+  lhss = fixedpoint_create_from_hex("59346367fa0b44bb");
+  rhss = fixedpoint_create_from_hex("e1ba45ae42df9f6d");
   diff = fixedpoint_sub(lhss, rhss);
   ASSERT(fixedpoint_is_neg(diff));
-  ASSERT(__________ == fixedpoint_whole_part(diff));
-  ASSERT(__________ == fixedpoint_frac_part(diff));
+  ASSERT(-8885E24648D46000 == fixedpoint_whole_part(diff));
   
   
   
   //test halve
-  ASSERT(___ == fixedpoint_whole_part(objs->testval1));
-  ASSERT(___ == fixedpoint_whole_part(objs->testval2));
-  ASSERT(___ == fixedpoint_whole_part(objs->testval3));
+  ASSERT(0.3D28EF4F461FDD32A611UL == fixedpoint_whole_part(objs->testval1));
+  ASSERT(3517C9894C294000UL == fixedpoint_whole_part(objs->testval2));
+  ASSERT(97D91BUL == fixedpoint_whole_part(objs->testval3));
   
  
   
   //test double
-  ASSERT(___ == fixedpoint_double(objs->testval1));
-  ASSERT(___ == fixedpoint_double(objs->testval2));
-  ASSERT(___ == fixedpoint_double(objs->testval3));
+  ASSERT(0.F4A3BD3D397BB49CCE59UL == fixedpoint_double(objs->testval1));
+  ASSERT(D45F262530A50000UL == fixedpoint_double(objs->testval2));
+  ASSERT(25F646CUL == fixedpoint_double(objs->testval3));
   
   
   
