@@ -14,6 +14,14 @@ typedef struct {
   Fixedpoint min_magnitude;
   Fixedpoint max;
   Fixedpoint min;
+  
+  //added
+  Fixedpoint testval1;
+  Fixedpoint testval2;
+  Fixedpoint testval3;
+  Fixedpoint testval4;
+  Fixedpoint testval5;
+  Fixedpoint testval6;
 
   // TODO: add more objects to the test fixture
 } TestObjs;
@@ -32,7 +40,10 @@ void test_add(TestObjs *objs);
 void test_sub(TestObjs *objs);
 void test_is_overflow_pos(TestObjs *objs);
 void test_is_err(TestObjs *objs);
+
 // TODO: add more test functions
+void extra_tests(TestObjs *objs);
+
 
 int main(int argc, char **argv) {
   // if a testname was specified on the command line, only that
@@ -52,6 +63,7 @@ int main(int argc, char **argv) {
   TEST(test_sub);
   TEST(test_is_overflow_pos);
   TEST(test_is_err);
+  TEST(extra_tests);
 
   // IMPORTANT: if you add additional test functions (which you should!),
   // make sure they are included here.  E.g., if you add a test function
@@ -73,6 +85,15 @@ TestObjs *setup(void) {
   objs->one_fourth = fixedpoint_create2(0UL, 0x4000000000000000UL);
   objs->large1 = fixedpoint_create2(0x4b19efceaUL, 0xec9a1e2418UL);
   objs->large2 = fixedpoint_create2(0xfcbf3d5UL, 0x4d1a23c24fafUL);
+  objs->max = fixedpoint_create2(0xffffffffffffffff, 0xffffffffffffffff);
+  
+  //added
+  objs->testval1 = fixedpoint_create(
+  objs->testval2 = fixedpoint_create(
+  objs->testval3 = fixedpoint_create(
+  objs->testval4 = fixedpoint_create(
+  objs->testval5 = fixedpoint_create(
+  objs->testval6 = fixedpoint_create(
 
   return objs;
 }
@@ -81,6 +102,86 @@ void cleanup(TestObjs *objs) {
   free(objs);
 }
 
+//added
+void extra_tests(TestObjs *objs) {
+  //test whole part
+  ASSERT(___ == fixedpoint_whole_part(objs->testval1));
+  ASSERT(___ == fixedpoint_whole_part(objs->testval2));
+  ASSERT(___ == fixedpoint_whole_part(objs->testval3));
+  
+  //test frac part
+  ASSERT(___ == fixedpoint_whole_part(objs->testval4));
+  ASSERT(___ == fixedpoint_whole_part(objs->testval5));
+  ASSERT(___ == fixedpoint_whole_part(objs->testval6));
+  
+  //test format as hex
+  char *s;
+
+  s = fixedpoint_format_as_hex(objs->zero);
+  ASSERT(0 == strcmp(s, "0"));
+  free(s);
+
+  s = fixedpoint_format_as_hex(objs->one);
+  ASSERT(0 == strcmp(s, "1"));
+  free(s);
+
+  s = fixedpoint_format_as_hex(objs->one_half);
+  ASSERT(0 == strcmp(s, "0.8"));
+  free(s);
+
+  
+  //test negate
+  // none of the test fixture objects are negative
+  ASSERT(!fixedpoint_is_neg(objs->testval1));
+  ASSERT(!fixedpoint_is_neg(objs->testval2));
+  ASSERT(!fixedpoint_is_neg(objs->testval3));
+
+  // negate the test fixture values
+  Fixedpoint zero_neg = fixedpoint_negate(objs->testval4);
+  Fixedpoint one_neg = fixedpoint_negate(objs->testval5);
+  Fixedpoint one_half_neg = fixedpoint_negate(objs->testval6);
+  
+  
+  //test add
+  Fixedpoint lhss, rhss, summ;
+
+  lhss = testval1;
+  rhss = testval2;
+  summ = fixedpoint_add(lhss, rhss);
+  ASSERT(fixedpoint_is_neg(summ));
+  ASSERT("_____" == fixedpoint_whole_part(summ));
+  ASSERT("_____" == fixedpoint_frac_part(summ));
+  
+  //test sub
+  Fixedpoint lhss, rhss, diff;
+
+  lhss = fixedpoint_create_from_hex("_________");
+  rhss = fixedpoint_create_from_hex("_________");
+  diff = fixedpoint_sub(lhss, rhss);
+  ASSERT(fixedpoint_is_neg(diff));
+  ASSERT(__________ == fixedpoint_whole_part(diff));
+  ASSERT(__________ == fixedpoint_frac_part(diff));
+  
+  
+  
+  //test halve
+  ASSERT(___ == fixedpoint_whole_part(objs->testval1));
+  ASSERT(___ == fixedpoint_whole_part(objs->testval2));
+  ASSERT(___ == fixedpoint_whole_part(objs->testval3));
+  
+ 
+  
+  //test double
+  ASSERT(___ == fixedpoint_double(objs->testval1));
+  ASSERT(___ == fixedpoint_double(objs->testval2));
+  ASSERT(___ == fixedpoint_double(objs->testval3));
+  
+  
+  
+  
+}
+    
+    
 void test_whole_part(TestObjs *objs) {
   ASSERT(0UL == fixedpoint_whole_part(objs->zero));
   ASSERT(1UL == fixedpoint_whole_part(objs->one));
