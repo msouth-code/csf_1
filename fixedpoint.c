@@ -47,7 +47,9 @@ int is_valid_hex(const char *hex) {
 	  (dot == 1) ? fc++:wc++;
 	  // 48 - 57, 65 - 70, 97 - 102
 	  if(hex[i] < 48 || (hex[i] > 57 && hex[i] < 65) || (hex[i] > 70 && hex[i] < 97) || hex[i] > 102) {
-		  return 0;
+		  if(hex[i] != '.') {
+			  return 0;
+		  }
 	  }  
   }
   if(wc > 16 || fc > 16) {
@@ -78,7 +80,7 @@ Fixedpoint fixedpoint_create_from_hex(const char *hex) {
   // x.y
   // -x.y
   char* dot = strchr(hex, '.');
-  int dotpos = dot - hex; // location of dot in string
+  int dotpos = dot - hex - 1; // location of dot in string
   if(hex[0] == '-') { 
 	  neg = 1;
 	  int count = 0;
@@ -398,13 +400,11 @@ int fixedpoint_is_underflow_pos(Fixedpoint val) {
 
 int fixedpoint_is_valid(Fixedpoint val) {
   // TODO: implement
-  /**
   if(val.error == 1 || val.posoverfl == 1 ||
   val.negoverfl == 1 || val.posunderfl == 1 ||
   val.negunderfl == 1) {
     return 0;
-  } **/
-  return val.validNeg == 1 || val.validNonneg == 1;
+  } else {return 1;}
 }
 
 
