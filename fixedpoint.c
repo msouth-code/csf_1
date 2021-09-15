@@ -367,13 +367,13 @@ int fixedpoint_is_zero(Fixedpoint val) {
 //me
 int fixedpoint_is_err(Fixedpoint val) {
   // TODO: implement
-  return val.error == 1;
+  return val.error;
 }
 
 //me
 int fixedpoint_is_neg(Fixedpoint val) {
   // TODO: implement
-  return val.validNeg == 1;
+  return val.validNeg;
 }
 
 //me
