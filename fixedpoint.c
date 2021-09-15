@@ -279,6 +279,12 @@ Fixedpoint fixedpoint_sub(Fixedpoint left, Fixedpoint right) {
 //me
 Fixedpoint fixedpoint_negate(Fixedpoint val) {
   // TODO: implement
+  //zero is its own negation
+  if(val.whole == 0) {
+     val.validNeg = 0;
+     val.validNonneg = 0;
+     return val;
+  }
   val.validNeg = 1;
   val.validNonneg = 0;
   return val;
