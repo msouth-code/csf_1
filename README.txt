@@ -22,3 +22,6 @@ For MS2, we split up the functions as follows:
     fixedpoint_is_valid
     fixedpoint_format_as_hex
    We then worked together to come up with the test cases and debug the program.
+   
+   
+  When debugging, our main complications came from our implementation of fixedpoint_create_from_hex. We spent quite some time debugging since our whole, frac, wholehex, and frachex variables weren't copying properly. We spent some time cleaning up our strtoul and strcpy usages and were able to solve them. Our other issues came from the following functions: format_as_hex, negate, add, sub, overflow_pos, and err. 
