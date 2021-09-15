@@ -71,55 +71,6 @@ Fixedpoint fixedpoint_create_from_hex(const char *hex) {
   }
   Fixedpoint fp;
 
-  /**
-  int neg = 0;
-  int dec = 0;
-
-  // x
-  // -x
-  // x.y
-  // -x.y
-  char* dot = strchr(hex, '.');
-  if(hex[0] == '-') { 
-	  neg = 1;
-  }
-  if(dot != NULL) {
-	  dec = 1;
-  }
-  const char s[2] = ".";
-  const char z[2] = "0";
-  char nonchex[16];
-  strcpy(nonchex, hex);
-  char* nonchexp = &nonchex[0];
-  if(neg == 1) {
-	  nonchexp++;
-  }
-  char *wholhex = strtok(nonchexp, s);
-
-  uint64_t whole = strtoul(wholhex, &dot, 16);
-  if(dec == 1) {
-	  char *frachex = strtok(NULL, s);
-	  char paddedfrac[16];
-	  for (unsigned long i = strlen(frachex) - 1; i < 16; i++) {
-			  strcat(paddedfrac, z);
-	  }
-
-	  char *end = paddedfrac + strlen(paddedfrac) - 1;
-	  uint64_t frac = strtoul(paddedfrac, &end, 16);
-	  fp.hasFrac = 1;
-	  fp.frac = frac;
-	  fp.whole = whole;
-  } else {
-	  fp.whole = whole; 
-  }
-
-  if(neg == 1) {
-	  fp.validNeg = 1;
-  } else {
-	  fp.validNonneg = 1;
-  }
-  **/
-
   char wholehex[20];
   char frachex[20];
   if(hex[0] == '-') {
