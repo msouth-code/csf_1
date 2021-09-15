@@ -69,54 +69,89 @@ Fixedpoint fixedpoint_create_from_hex(const char *hex) {
 	  fp.error = 1;
 	  return fp;
   }
+  Fixedpoint fp;
+
+  /**
   int neg = 0;
   int dec = 0;
-
-  char wholehex[20];
-  char frachex[20];
 
   // x
   // -x
   // x.y
   // -x.y
   char* dot = strchr(hex, '.');
-  int dotpos = dot - hex - 1; // location of dot in string
   if(hex[0] == '-') { 
 	  neg = 1;
-	  int count = 0;
-	  for(int i = 1; i < dotpos; i++) {
-		  wholehex[count] = hex[i];
-	  }
-  } else { 
-	  int count = 0;
-	  for(int i = 0; i < dotpos; i++) {
-		  wholehex[count] = hex[i];
-	  }
   }
-  if(dot != NULL) { 
-	  dec = 1; 
-	  int count = 0;
-	  for(long unsigned int i = dotpos; i < strlen(hex) - 1; i++) {
-		  frachex[count] = hex[i];
-	  }
+  if(dot != NULL) {
+	  dec = 1;
   }
+  const char s[2] = ".";
+  const char z[2] = "0";
+  char nonchex[16];
+  strcpy(nonchex, hex);
+  char* nonchexp = &nonchex[0];
+  if(neg == 1) {
+	  nonchexp++;
+  }
+  char *wholhex = strtok(nonchexp, s);
 
-  // hex to bin
-  
-  char* ptr;
-  Fixedpoint fp;
-  uint64_t whole = strtoul(wholehex, &ptr, 2);
-  if(dec == 1) { 
-	  uint64_t frac = strtoul(frachex, &ptr, 2); 
-	  fp = fixedpoint_create2(whole, frac);
+  uint64_t whole = strtoul(wholhex, &dot, 16);
+  if(dec == 1) {
+	  char *frachex = strtok(NULL, s);
+	  char paddedfrac[16];
+	  for (unsigned long i = strlen(frachex) - 1; i < 16; i++) {
+			  strcat(paddedfrac, z);
+	  }
+
+	  char *end = paddedfrac + strlen(paddedfrac) - 1;
+	  uint64_t frac = strtoul(paddedfrac, &end, 16);
 	  fp.hasFrac = 1;
-  } else { fp = fixedpoint_create(whole); }
+	  fp.frac = frac;
+	  fp.whole = whole;
+  } else {
+	  fp.whole = whole; 
+  }
 
   if(neg == 1) {
 	  fp.validNeg = 1;
   } else {
 	  fp.validNonneg = 1;
   }
+  **/
+
+  char wholehex[20];
+  char frachex[20];
+  if(hex[0] == '-') {
+	  fp.validNeg = 1;
+  } else {
+	  fp.validNonneg = 1;
+  }
+
+  char* dot = strchr(hex, '.');
+  int sizeOfWhole = dot - hex;
+  if(fp.validNeg == 1) { sizeOfWhole--; }
+  if(sizeOfWhole > 16) { sizeOfWhole = 16; }
+  memcpy(wholehex, hex, sizeOfWhole);
+  uint64_t whole = strtoul(wholehex, NULL, 16);
+  
+
+  if(dot != NULL) {
+	  strcpy(frachex, dot + 1);
+	  frachex[16] = '\0';
+	  int sizeOfFrac = strlen(hex) - (dot - hex) - 1;
+	  if(fp.validNeg == 1) { sizeOfFrac--; }
+	  // pad
+	  char z[2] = "0";
+	  for(int i = sizeOfFrac; i < 16; i++) {
+		  strcat(frachex, z);
+	  }
+
+	  uint64_t frac = strtoul(frachex, NULL, 16);
+	  fp.hasFrac = 1;
+	  fp.frac = frac;
+  }
+  fp.whole = whole;
   
 
   // should only return valid nonneg, valid neg, or error
