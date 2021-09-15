@@ -5,8 +5,6 @@
 #include <assert.h>
 #include "fixedpoint.h"
 
-// You can remove this once all of the functions are fully implemented
-static Fixedpoint DUMMY;
 
 // MS 1
 Fixedpoint fixedpoint_create(uint64_t whole) {
@@ -44,7 +42,7 @@ int is_valid_hex(const char *hex) {
   int dot = 0;
   int	wc = 0;
   int fc = 0;
-  for(int i = 0; i < strlen(hex); i++) {
+  for(long unsigned int i = 0; i < strlen(hex); i++) {
 	  if(hex[i] == '.') { dot = 1; }
 	  (dot == 1) ? fc++:wc++;
 	  // 48 - 57, 65 - 70, 97 - 102
@@ -58,12 +56,6 @@ int is_valid_hex(const char *hex) {
   return 1;
 }
 
-void cpysubstr(const char *str, char* res, int start, int end) {
-	int count = 0;
-	for(int i = start; i < end; i++) {
-		res[count] = str[i];
-	}
-}
 
 //me
 Fixedpoint fixedpoint_create_from_hex(const char *hex) {
@@ -75,11 +67,11 @@ Fixedpoint fixedpoint_create_from_hex(const char *hex) {
 	  fp.error = 1;
 	  return fp;
   }
-  int neg;
-  int dec;
+  int neg = 0;
+  int dec = 0;
 
-  char* wholehex;
-  char* frachex;
+  char wholehex[20];
+  char frachex[20];
 
   // x
   // -x
@@ -89,14 +81,26 @@ Fixedpoint fixedpoint_create_from_hex(const char *hex) {
   int dotpos = dot - hex; // location of dot in string
   if(hex[0] == '-') { 
 	  neg = 1;
-	  cpysubstr(hex, wholehex, 1, dotpos);
-  } else { cpysubstr(hex, wholehex, 0, dotpos); }
+	  int count = 0;
+	  for(int i = 1; i < dotpos; i++) {
+		  wholehex[count] = hex[i];
+	  }
+  } else { 
+	  int count = 0;
+	  for(int i = 0; i < dotpos; i++) {
+		  wholehex[count] = hex[i];
+	  }
+  }
   if(dot != NULL) { 
 	  dec = 1; 
-	  cpysubstr(hex, frachex, dotpos, strlen(hex) - 1);
+	  int count = 0;
+	  for(long unsigned int i = dotpos; i < strlen(hex) - 1; i++) {
+		  frachex[count] = hex[i];
+	  }
   }
 
   // hex to bin
+  
   char* ptr;
   Fixedpoint fp;
   uint64_t whole = strtoul(wholehex, &ptr, 2);
@@ -111,6 +115,7 @@ Fixedpoint fixedpoint_create_from_hex(const char *hex) {
   } else {
 	  fp.validNonneg = 1;
   }
+  
 
   // should only return valid nonneg, valid neg, or error
   return fp;
@@ -208,11 +213,11 @@ Fixedpoint fixedpoint_add(Fixedpoint left, Fixedpoint right) {
 Fixedpoint fixedpoint_sub(Fixedpoint left, Fixedpoint right) {
   // TODO: implement
   // for overflow of fractional parts, carry/borrow to the whole part
-  int pos_over;
-  int neg_over;
+  int pos_over = 0;
+  int neg_over = 0;
 
-  int neg;
-  int frac;
+  int neg = 0;
+  int frac = 0;
 
   uint64_t diff_whole;
   uint64_t diff_frac;
@@ -393,12 +398,13 @@ int fixedpoint_is_underflow_pos(Fixedpoint val) {
 
 int fixedpoint_is_valid(Fixedpoint val) {
   // TODO: implement
+  /**
   if(val.error == 1 || val.posoverfl == 1 ||
   val.negoverfl == 1 || val.posunderfl == 1 ||
   val.negunderfl == 1) {
     return 0;
-  }
-  return 1;
+  } **/
+  return val.validNeg == 1 || val.validNonneg == 1;
 }
 
 
